@@ -7,11 +7,8 @@
 const TRIGGER = ';;';
 const MAX_CANDIDATES = 10;
 
-const TEMPLATES = [
-  { title: 'review-assist', body: '/review-assist' },
-  { title: 'pr-enrichment', body: '/pr-enrichment' },
-  { title: 'close-issue', body: '/close-issue' }
-];
+// Templates loaded from chrome.storage.local
+let TEMPLATES = [];
 
 // Mirror div style properties to copy
 const MIRROR_STYLE_PROPERTIES = [
@@ -41,8 +38,26 @@ function isTargetPage() {
   return /^\/[^/]+\/[^/]+\/(issues|pull)\//.test(path);
 }
 
+// --- Load Templates from Storage ---
+async function loadTemplates() {
+  const result = await chrome.storage.local.get('templates');
+  TEMPLATES = result.templates || [];
+  console.log('[GitHub Suggestion] Loaded templates:', TEMPLATES.length);
+}
+
 // --- Initialization ---
-function init() {
+async function init() {
+  // Load templates first
+  await loadTemplates();
+
+  // Listen for storage changes (when popup updates templates)
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.templates) {
+      TEMPLATES = changes.templates.newValue || [];
+      console.log('[GitHub Suggestion] Templates updated:', TEMPLATES.length);
+    }
+  });
+
   if (!isTargetPage()) {
     console.log('[GitHub Suggestion] Not a target page, skipping');
     return;

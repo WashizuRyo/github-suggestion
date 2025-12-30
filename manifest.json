@@ -1,15 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "GitHub Suggestion",
-  "version": "1.0.0",
-  "description": "Display custom word suggestions when typing / in GitHub comments",
+  "name": "GitHub Saved Replies",
+  "version": "1.1.0",
+  "description": "Quick saved replies with ;; trigger in GitHub comments",
   "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "GitHub Saved Replies"
+  },
   "content_scripts": [
     {
       "matches": ["https://github.com/*"],
       "js": ["content.js"],
       "css": ["styles.css"]
     }
-  ],
-  "options_page": "options.html"
+  ]
 }
