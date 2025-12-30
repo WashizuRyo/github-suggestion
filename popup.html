@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Saved Replies</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Saved Replies</h1>
+
+    <div class="list-section">
+      <ul id="templateList" class="template-list"></ul>
+      <p id="emptyMessage" class="empty-message">No saved replies yet.</p>
+    </div>
+
+    <div class="form-section">
+      <h2 id="formTitle">Add a saved reply</h2>
+
+      <div class="form-group">
+        <label for="titleInput">Saved reply title</label>
+        <input type="text" id="titleInput" placeholder="Add a short title to your reply">
+      </div>
+
+      <div class="form-group">
+        <label for="bodyInput">Reply content</label>
+        <textarea id="bodyInput" placeholder="Add your saved reply" rows="6"></textarea>
+      </div>
+
+      <button id="saveBtn" class="btn-save">Add saved reply</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
