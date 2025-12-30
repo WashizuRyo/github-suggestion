@@ -1,3 +1,4 @@
+
 # AGENT.md - GitHub Saved Replies Chrome Extension
 
 ## Project Overview
@@ -145,7 +146,4 @@ const state = {
 ## Future Improvements
 
 - Dark mode / Light mode support
-- Fuzzy matching
-- Template reordering (drag & drop)
-- Import/export templates
-- Sync templates across devices (chrome.storage.sync)
+- Sort by usage count (frequently used templates appear first)
