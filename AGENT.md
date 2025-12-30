@@ -1,4 +1,4 @@
-# AGENT.md - GitHub Suggestion Chrome Extension
+# AGENT.md - GitHub Saved Replies Chrome Extension
 
 ## Project Overview
 
@@ -10,21 +10,25 @@ Chrome extension that provides saved replies (templates) when typing `;;` in Git
 
 1. **content.js** - Main logic
    - Detects `;;` trigger in GitHub comment textareas
+   - Loads templates from `chrome.storage.local`
    - Manages popup display and positioning (mirror div technique)
    - Handles keyboard navigation (↑↓ Enter Tab Esc)
    - IME composition support (Japanese input, etc.)
    - SPA navigation handling
 
 2. **styles.css** - UI styling
-   - Popup appearance (GitHub-like design)
+   - Suggestion popup appearance (GitHub-like design)
    - Selection and hover states
 
-3. **manifest.json** - Extension configuration
+3. **popup.html + popup.css + popup.js** - Extension popup UI
+   - Template CRUD (Create, Read, Update, Delete)
+   - Persists to `chrome.storage.local`
+   - Opens when clicking extension icon
+
+4. **manifest.json** - Extension configuration
    - Permissions: storage
    - Content scripts run on github.com/*
-
-4. **options.html + options.js** - Settings page (currently unused)
-   - Templates are hardcoded in content.js for now
+   - Action popup: popup.html
 
 ## Key Behaviors
 
@@ -38,7 +42,7 @@ Chrome extension that provides saved replies (templates) when typing `;;` in Git
 - `https://github.com/*/*/issues/*`
 - `https://github.com/*/*/pull/*`
 
-### Popup Display
+### Suggestion Popup Display
 - Positioned below the caret using mirror div technique
 - Shows title + short preview in one line
 - Max 10 candidates displayed
@@ -56,22 +60,41 @@ Chrome extension that provides saved replies (templates) when typing `;;` in Git
 - Cursor positioned at end of inserted text
 - Fires `input` and `change` events for GitHub
 
-## Templates (Hardcoded)
+## Storage
 
-```javascript
-const TEMPLATES = [
-  { title: 'review-assist', body: 'レビューありがとうございます！...' },
-  { title: 'pr-enrichment', body: 'このPRでは以下の変更を...' },
-  { title: 'lgtm', body: 'LGTM! :+1:' },
-  { title: 'thanks-review', body: 'レビューありがとうございます！' },
-  { title: 'needs-fix', body: 'こちらの修正が必要です...' },
-  { title: 'close-issue', body: 'この問題は解決されました...' }
-];
+### chrome.storage.local
+- Key: `templates`
+- Format: `[{ title: string, body: string }, ...]`
+- Synced between popup and content script via `chrome.storage.onChanged`
+
+## Extension Popup (Template Management)
+
+### Features
+- **Add**: Title + body form at bottom
+- **Edit**: Click pencil icon → form populated → "Update saved reply"
+- **Delete**: Click × icon → confirmation dialog → removed
+
+### UI Structure
+```
+┌─────────────────────────────────┐
+│ Saved Replies                   │
+├─────────────────────────────────┤
+│ template-1        [edit][delete]│
+│ preview text...                 │
+│                                 │
+│ template-2        [edit][delete]│
+│ preview text...                 │
+├─────────────────────────────────┤
+│ Add a saved reply               │
+│ [Title input                  ] │
+│ [Body textarea                ] │
+│               [Add saved reply] │
+└─────────────────────────────────┘
 ```
 
 ## Important Code Patterns
 
-### State Management
+### State Management (content.js)
 ```javascript
 const state = {
   isPopupOpen: false,
@@ -95,26 +118,34 @@ const state = {
 - Captures phase (`true`) for early interception
 - Handles: `input`, `keydown`, `compositionstart`, `compositionend`, `click`
 
+### Storage Sync
+- content.js listens to `chrome.storage.onChanged`
+- Templates update in real-time when popup saves
+
 ## Development Tips
 
 ### Testing
 1. Load unpacked extension in `chrome://extensions/`
-2. Navigate to any GitHub issue or PR
-3. Type `;;` in comment textarea
-4. Type to filter, use arrows to navigate, Enter to insert
+2. Click extension icon to manage templates
+3. Navigate to any GitHub issue or PR
+4. Type `;;` in comment textarea
+5. Type to filter, use arrows to navigate, Enter to insert
 
 ### Debugging
 - Console logs prefixed with `[GitHub Suggestion]`
 - Check popup element: `document.querySelector('.github-suggestion-popup')`
+- Check storage: `chrome.storage.local.get('templates', console.log)`
 
 ### Common Issues
 - **Popup position wrong**: Check mirror div style copying
 - **IME issues**: Verify `compositionstart/end` handling
 - **Popup won't close**: Check `handleDocumentClick` and event propagation
+- **Templates not loading**: Check `chrome.storage.local` and `onChanged` listener
 
 ## Future Improvements
 
-- Settings page for custom templates
+- Dark mode / Light mode support
 - Fuzzy matching
-- Tag-based filtering
+- Template reordering (drag & drop)
+- Import/export templates
 - Sync templates across devices (chrome.storage.sync)
