@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Suggestion",
+  "version": "1.0.0",
+  "description": "Display custom word suggestions when typing / in GitHub comments",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "options_page": "options.html"
+}
